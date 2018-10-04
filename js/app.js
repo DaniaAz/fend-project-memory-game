@@ -1,6 +1,5 @@
-const CARD_DISABLED = 'disabled';
 let openCards = []; // only holds two values for the two current open cards
-// const gameOverList = [];// holds each two matched cards
+const gameOverList = [];// holds all the cards
 
 const faces = ['fa-diamond', 'fa-paper-plane-o', 'fa-anchor', 'fa-bolt', 'fa-cube', 'fa-leaf', 'fa-bicycle', 'fa-bomb', 'fa-diamond', 'fa-paper-plane-o', 'fa-anchor', 'fa-bolt', 'fa-cube', 'fa-leaf', 'fa-bicycle', 'fa-bomb'];
 
@@ -13,10 +12,13 @@ let actualSixteenCardsList = Array.from(deckElement.children);
 
 let restart = document.querySelector('.restart');
 
+let congratulationsElement = document.createElement('span');
+
 document.body.onload = startGame;
 
-
 function initBoard() {
+  congratulationsElement = document.createElement('span');
+  congratulationsElement.textContent = 'CONGRATULATIONS';
   actualSixteenCardsList.forEach((item) => (item.className = 'card'));
   counter.textContent = moves = 0;
 // Shuffle faces
@@ -26,25 +28,27 @@ function initBoard() {
 }
 
 
-function startGame() {
-  restart.addEventListener('click', initBoard);
-  initBoard();
+function reattachDeckToContainer() {
+  setTimeout(function () {
+    congratulationsElement.style.display = 'none';
+  }, 500);
+  deckElement.style.display = 'flex';
+}
 
+function restartGame() {
+  reattachDeckToContainer();
+  initBoard();
+}
+
+function startGame() {
+  initBoard();
+  restart.addEventListener('click', restartGame);
 // Set one Listener to the deck element
   deckElement.addEventListener("click", openCard);
 
   function openCard(event) {
-    // check if gameOverList is full then => game is over
-    // if (gameOverList.length === 16)
-    //   deckElement.className = '';
-
-
-    // check if card is not disabled first
     let target = event.target;
-    if (target.className.includes(CARD_DISABLED)) {
-      target.className.includes(CARD_DISABLED);
-      return;
-    }
+
     displayCardSymbol(target);
   }
 
@@ -73,8 +77,12 @@ function startGame() {
     let firstOpenedCard = openCards[0];
     if (length === 2) {
       if (firstOpenedCard.className === currentClickedCardFaceName.className)
-        match(currentClickedCardFaceName, firstOpenedCard);
-      else unmatched(currentClickedCardFaceName, firstOpenedCard);
+        setTimeout(function () {
+          match(currentClickedCardFaceName, firstOpenedCard)
+        }, 500);
+      else {
+        unmatched(currentClickedCardFaceName, firstOpenedCard);
+      }
     }
   }
 
@@ -83,23 +91,27 @@ function startGame() {
   }
 
   function lockCards(firstCard, secondCard) {
-    firstCard.parentElement.className = `card match ${CARD_DISABLED}`;
-    secondCard.parentElement.className = `card match ${CARD_DISABLED}`;
+    firstCard.parentElement.className = 'card match'  //${CARD_DISABLED}`;
+    secondCard.parentElement.className = 'card match' // ${CARD_DISABLED}`;
+    gameOverList.push(firstCard);
+    gameOverList.push(secondCard);
     clearOpenCardsList();
+
+    // check for game over
+    if (gameOverList.length === 16)
+      won();
+
+  }
+
+  function won() {
+    deckElement.style.display = 'none';
+    deckElement.insertAdjacentHTML('beforebegin', congratulationsElement);
   }
 
   function unmatched(firstOpenedCard, currentClickedCardFaceName) {
-    // disable cards while closing them
-    firstOpenedCard.classList.add(CARD_DISABLED);
-    currentClickedCardFaceName.classList.add(CARD_DISABLED);
-
     setTimeout(function () {
       hideSymbols(firstOpenedCard, currentClickedCardFaceName);
       clearOpenCardsList();
-
-      //enable them again after closing
-      firstOpenedCard.classList.remove(CARD_DISABLED);
-      currentClickedCardFaceName.classList.remove(CARD_DISABLED);
     }, 900);
   }
 
@@ -112,10 +124,12 @@ function startGame() {
   }
 
   function hideSymbols(firstCard, secondCard) {
-    // console.log(`firstCard.parentElement.className ${firstCard.parentElement.className}`);
+    firstCard.parentElement.className = 'card mismatch';
+    secondCard.parentElement.className = 'card mismatch';
+    setTimeout(function () {
     firstCard.parentElement.className = 'card';
-    // console.log(`second.parentElement.className ${secondCard.parentElement.className}`);
     secondCard.parentElement.className = 'card';
+    }, 500);
   }
 
 // Shuffle function from http://stackoverflow.com/a/2450976
@@ -135,4 +149,8 @@ function shuffle(array) {
   return array;
 
 }
+
+window.onload = function init() {
+  startGame();
+};
 

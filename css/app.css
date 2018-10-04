@@ -33,6 +33,17 @@ h1 {
     font-weight: 300;
 }
 
+.won {
+    margin: 70px auto;
+    padding: 20px;
+    background: chartreuse;
+    border-radius: 5px;
+    width: 85%;
+    position: relative;
+    transition: all 5s ease-in-out;
+    font-family: 'Gloria Hallelujah', cursive;
+}
+
 /*
  * Styles for the deck of cards
  */
@@ -80,6 +91,13 @@ h1 {
     background: #02ccba;
     font-size: 33px;
 }
+
+.card.mismatch {
+    cursor: default;
+    background: red;
+    font-size: 33px;
+}
+
 
 /*
  * Styles for the Score Panel
